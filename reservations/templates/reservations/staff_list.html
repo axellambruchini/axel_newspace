@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>🛠 Panel de Control (Staff)</h1>
+        <div>
+            <a href="?status=PENDING" class="btn btn-warning">Ver Pendientes</a>
+            <a href="?status=CONFIRMED" class="btn btn-success">Ver Confirmadas</a>
+            <a href="?" class="btn btn-secondary">Ver Todas</a>
+        </div>
+    </div>
+    <div class="row mb-5">
+        <div class="col-md-6">
+            <div class="card shadow h-100">
+                <div class="card-header bg-dark text-white">Estado de Reservas</div>
+                <div class="card-body">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow h-100">
+                <div class="card-header bg-dark text-white">Top 5 Espacios Más Solicitados</div>
+                <div class="card-body">
+                    <canvas id="venueChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-body p-0">
+            <table class="table table-striped mb-0">
+                <thead class="bg-dark text-white">
+                    <tr>
+                        <th>ID</th>
+                        <th>Cliente</th>
+                        <th>Lugar</th>
+                        <th>Fecha Evento</th>
+                        <th>Estado</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for res in reservations %}
+                    <tr>
+                        <td>#{{ res.id }}</td>
+                        <td>
+                            {{ res.client.username }} <br>
+                            <small class="text-muted">{{ res.client.email }}</small>
+                        </td>
+                        <td>{{ res.venue.name }}</td>
+                        <td>{{ res.start_time|date:"d M Y, H:i" }}</td>
+                        <td>
+                            {% if res.status == 'PENDING' %}
+                                <span class="badge bg-warning text-dark">Pendiente</span>
+                            {% elif res.status == 'CONFIRMED' %}
+                                <span class="badge bg-success">Confirmada</span>
+                            {% elif res.status == 'CANCELLED' %}
+                                <span class="badge bg-danger">Cancelada</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ res.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'manage_reservation' res.id %}" class="btn btn-sm btn-primary">
+                                Gestionar
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center p-4">No hay reservas con este filtro.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // 1. Configuración Gráfico de Dona (Estados)
+    const ctxStatus = document.getElementById('statusChart').getContext('2d');
+    new Chart(ctxStatus, {
+        type: 'doughnut',
+        data: {
+            labels: {{ chart_labels|safe }}, // Django inyecta la lista aquí
+            datasets: [{
+                data: {{ chart_data|safe }},
+                backgroundColor: ['#ffc107', '#198754', '#dc3545', '#6c757d'], // Amarillo, Verde, Rojo, Gris
+                hoverOffset: 4
+            }]
+        }
+    });
+
+    // 2. Configuración Gráfico de Barras (Lugares)
+    const ctxVenue = document.getElementById('venueChart').getContext('2d');
+    new Chart(ctxVenue, {
+        type: 'bar',
+        data: {
+            labels: {{ venue_labels|safe }},
+            datasets: [{
+                label: 'Cantidad de Reservas',
+                data: {{ venue_data|safe }},
+                backgroundColor: '#0d6efd', // Azul Bootstrap
+                borderColor: '#0a58ca',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: { beginAtZero: true, ticks: { stepSize: 1 } }
+            }
+        }
+    });
+</script>
+{% endblock %}

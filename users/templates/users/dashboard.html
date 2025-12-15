@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Mi Panel de Gestión</h2>
+    <p>Bienvenido, {{ user.username }}</p>
+
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            Mis Reservas y Trazabilidad
+        </div>
+        <div class="card-body">
+            {% if reservations %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Fecha Solicitud</th>
+                                <th>Evento</th>
+                                <th>Lugar</th>
+                                <th>Fecha del Evento</th>
+                                <th>Estado</th>
+                                <th>Notas del Staff</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for res in reservations %}
+                            <tr>
+                                <td>{{ res.created_at|date:"d/m/Y H:i" }}</td>
+                                <td>{{ res.event_type }}</td>
+                                <td>{{ res.venue.name }}</td>
+                                <td>
+                                    {{ res.start_time|date:"d/m/Y H:i" }} <br>
+                                    <small>hasta {{ res.end_time|date:"H:i" }}</small>
+                                </td>
+                                <td>
+                                    {% if res.status == 'PENDING' %}
+                                        <span class="badge bg-warning text-dark">Pendiente</span>
+                                    {% elif res.status == 'CONFIRMED' %}
+                                        <span class="badge bg-success">Confirmada</span>
+                                    {% elif res.status == 'CANCELLED' %}
+                                        <span class="badge bg-danger">Cancelada</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ res.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if res.staff_notes %}
+                                        <small class="text-muted">{{ res.staff_notes }}</small>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <th>Historial</th>
+
+<td>
+    <button type="button" class="btn btn-sm btn-info text-white" data-bs-toggle="modal" data-bs-target="#historyModal{{ res.id }}">
+        Ver Seguimiento
+    </button>
+
+    <div class="modal fade" id="historyModal{{ res.id }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Trazabilidad: {{ res.event_type }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <small class="text-muted">{{ res.created_at|date:"d/m/Y H:i" }}</small><br>
+                            <strong>Solicitud Creada</strong>
+                        </li>
+                        
+                        {% for log in res.logs.all|dictsortreversed:"timestamp" %}
+                        <li class="list-group-item">
+                            <small class="text-muted">{{ log.timestamp|date:"d/m/Y H:i" }}</small><br>
+                            Estado cambió a: <strong>{{ log.new_status }}</strong>
+                            <br>
+                            <small class="text-info">Nota: {{ log.note }}</small>
+                            <br>
+                            <span class="badge bg-light text-dark">Por: {{ log.changed_by.username }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-center">No tienes reservas activas. <a href="{% url 'venue_list' %}">¡Busca un lugar!</a></p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

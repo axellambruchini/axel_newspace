@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="p-5 mb-4 bg-light rounded-3 text-center border">
+    <div class="container-fluid py-5">
+        <h1 class="display-5 fw-bold">Gestiona tus eventos perfectos</h1>
+        <p class="col-md-8 fs-4 mx-auto">Encuentra el espacio ideal para bodas, conferencias y fiestas. Revisa disponibilidad y reserva en tiempo real.</p>
+        {% if not user.is_authenticated %}
+            <a href="{% url 'register' %}" class="btn btn-primary btn-lg" type="button">Registrarse Gratis</a>
+        {% else %}
+            <a href="{% url 'venue_list' %}" class="btn btn-primary btn-lg" type="button">Ver Espacios</a>
+        {% endif %}
+    </div>
+</div>
+
+<h2 class="mb-4 text-center">Espacios Destacados</h2>
+<div class="row">
+    {% for venue in featured_venues %}
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm">
+            {% if venue.images.first %}
+                <img src="{{ venue.images.first.image.url }}" class="card-img-top" alt="{{ venue.name }}" style="height: 200px; object-fit: cover;">
+            {% else %}
+                <div class="bg-secondary text-white d-flex justify-content-center align-items-center" style="height: 200px;">Sin foto</div>
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">{{ venue.name }}</h5>
+                <p class="card-text text-truncate">{{ venue.description }}</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-muted">Capacidad: {{ venue.capacity }} pax</small>
+                    <span class="badge bg-success">${{ venue.price_per_hour }}/hr</span>
+                </div>
+            </div>
+            <div class="card-footer bg-white border-top-0">
+                <a href="{% url 'venue_detail' venue.id %}" class="btn btn-outline-primary w-100">Ver Detalles</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center">
+        <p>No hay espacios publicados aún.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

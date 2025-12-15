@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                Gestionar Reserva #{{ reservation.id }}
+            </div>
+            <div class="card-body">
+                <div class="alert alert-light border">
+                    <h5>Detalles de la Solicitud</h5>
+                    <p><strong>Cliente:</strong> {{ reservation.client.username }} ({{ reservation.client.email }})</p>
+                    <p><strong>Lugar:</strong> {{ reservation.venue.name }}</p>
+                    <p><strong>Tipo de Evento:</strong> {{ reservation.event_type }}</p>
+                    <p><strong>Horario:</strong> {{ reservation.start_time }} hasta {{ reservation.end_time }}</p>
+                </div>
+
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Cambiar Estado</label>
+                        <select name="status" class="form-select">
+                            <option value="PENDING" {% if reservation.status == 'PENDING' %}selected{% endif %}>Pendiente</option>
+                            <option value="CONFIRMED" {% if reservation.status == 'CONFIRMED' %}selected{% endif %}>Confirmar Reserva ✅</option>
+                            <option value="CANCELLED" {% if reservation.status == 'CANCELLED' %}selected{% endif %}>Cancelar/Rechazar ❌</option>
+                            <option value="COMPLETED" {% if reservation.status == 'COMPLETED' %}selected{% endif %}>Marcar como Finalizada 🏁</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="staff_notes" class="form-label">Notas de Trazabilidad (Visible para el cliente)</label>
+                        <textarea name="staff_notes" class="form-control" rows="4" placeholder="Ej: Pago recibido, faltan detalles de decoración, etc.">{{ reservation.staff_notes|default:"" }}</textarea>
+                        <div class="form-text">Escribe aquí razones de rechazo o instrucciones para el cliente.</div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success">Guardar Cambios</button>
+                        <a href="{% url 'staff_reservation_list' %}" class="btn btn-secondary">Volver</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

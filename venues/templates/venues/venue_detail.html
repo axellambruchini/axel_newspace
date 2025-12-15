@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                <span>📅 Disponibilidad</span>
+                <small>Rojo = Ocupado | Amarillo = Pendiente</small>
+            </div>
+            <div class="card-body">
+                <div id="calendar" style="min-height: 500px;"></div>
+            </div>
+        </div>
+        <h1>{{ venue.name }}</h1>
+        
+        <div id="venueCarousel" class="carousel slide mb-4" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                {% for photo in photos %}
+                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                    <img src="{{ photo.image.url }}" class="d-block w-100 venue-img" alt="Foto {{ venue.name }}">
+                </div>
+                {% empty %}
+                <div class="carousel-item active">
+                    <div class="d-flex justify-content-center align-items-center bg-secondary text-white venue-img">
+                        Sin imágenes disponibles
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#venueCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon"></span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#venueCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon"></span>
+            </button>
+        </div>
+        {% if venue.ar_model %}
+<div class="card mb-4 border-primary">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <span>🕶 Vista 3D / Realidad Aumentada</span>
+        <span class="badge bg-light text-dark">¡Pruébalo en tu móvil!</span>
+    </div>
+    <div class="card-body text-center">
+        <model-viewer 
+            src="{{ venue.ar_model.url }}" 
+            alt="Modelo 3D del espacio"
+            ar 
+            ar-modes="webxr scene-viewer quick-look" 
+            camera-controls 
+            poster="poster.webp" 
+            shadow-intensity="1"
+            style="width: 100%; height: 400px; background-color: #f0f0f0;">
+            
+            <button slot="ar-button" style="background-color: white; border-radius: 4px; border: none; position: absolute; top: 16px; right: 16px; padding: 10px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.25);">
+                👋 Ver en tu espacio (AR)
+            </button>
+        </model-viewer>
+        
+        <p class="mt-2 text-muted small">
+            <i class="bi bi-phone"></i> Si estás en celular, toca el botón para ver cómo quedaría este montaje en el mundo real.
+        </p>
+    </div>
+</div>
+{% endif %}
+
+        <div class="card mb-4">
+            <div class="card-header">Especificaciones del Lugar</div>
+            <div class="card-body">
+                <p>{{ venue.description }}</p>
+                <div class="row text-center">
+                    <div class="col-md-4">
+                        <h5>👥 Capacidad</h5>
+                        <p>{{ venue.capacity }} Personas</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h5>📏 Tamaño</h5>
+                        <p>{{ venue.size_sqm }} m²</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h5>💰 Precio</h5>
+                        <p>${{ venue.price_per_hour }} / hora</p>
+                    </div>
+                </div>
+                <hr>
+                <h5>🛠 Instalaciones (Amenities)</h5>
+                <ul class="list-inline">
+                    {% for amenity in venue.amenities.all %}
+                        <li class="list-inline-item badge bg-info text-dark">
+                            <i class="{{ amenity.icon_class }}"></i> {{ amenity.name }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">Ubicación</div>
+            <div class="card-body p-0">
+                <div id="map"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card sticky-top" style="top: 20px;">
+            <div class="card-header bg-success text-white">Reservar este espacio</div>
+            <div class="card-body">
+                <form action="{% url 'create_reservation' venue.id %}" method="POST">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label>Tipo de Evento</label>
+                        <select name="event_type" class="form-control">
+                            <option value="Boda">Boda</option>
+                            <option value="Corporativo">Evento Corporativo</option>
+                            <option value="Cumpleaños">Cumpleaños</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Inicio</label>
+                        <input type="datetime-local" name="start_time" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Fin</label>
+                        <input type="datetime-local" name="end_time" class="form-control" required>
+                    </div>
+
+                    {% if weather_info %}
+                    <div class="alert alert-info d-flex align-items-center">
+                        {% if weather_info.icon_url %}
+                            <img src="{{ weather_info.icon_url }}" alt="Clima" class="me-2">
+                        {% endif %}
+                        <div>
+                            <strong>Clima en la zona:</strong> {{ weather_info.temp }}°C - {{ weather_info.condition }}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <button type="submit" class="btn btn-success w-100">Solicitar Reserva</button>
+                </form>
+            </div>
+            <div class="card-footer text-muted">
+                <small>El trabajador revisará tu solicitud y verificará la trazabilidad.</small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+        
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            locale: 'es',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek'
+            },
+            events: "{% url 'venue_availability_api' venue.id %}",
+            
+            // --- ESTA ES LA PARTE QUE ACTUALIZA EL FORMULARIO ---
+            dateClick: function(info) {
+                // info.dateStr nos da la fecha en formato "2025-12-20"
+                var dateStr = info.dateStr;
+                
+                // Definimos horas por defecto (ej: inicio 9am, fin 1pm)
+                // El formato para el input datetime-local debe ser: YYYY-MM-DDTHH:MM
+                var defaultStart = "09:00";
+                var defaultEnd = "13:00";
+                
+                // Comprobamos si el click vino de una vista con hora (semana/dia) o solo fecha (mes)
+                if(dateStr.includes('T')){
+                    // Si clicó en una hora específica (vista semanal), usamos esa hora
+                    // dateStr ya viene como "2025-12-20T14:30:00" -> Cortamos los segundos
+                    var selectedTime = dateStr.substring(0, 16); 
+                    
+                    // Llenamos el inicio con la hora clicada
+                    document.querySelector('input[name="start_time"]').value = selectedTime;
+                    
+                    // Calculamos 4 horas más para el fin (lógica simple en JS)
+                    var dateObj = new Date(dateStr);
+                    dateObj.setHours(dateObj.getHours() + 4);
+                    // Formateamos para que encaje en el input (truco para ISO string local)
+                    dateObj.setMinutes(dateObj.getMinutes() - dateObj.getTimezoneOffset());
+                    document.querySelector('input[name="end_time"]').value = dateObj.toISOString().slice(0,16);
+                } else {
+                    // Si clicó en la vista MENSUAL (solo fecha)
+                    document.querySelector('input[name="start_time"]').value = dateStr + 'T' + defaultStart;
+                    document.querySelector('input[name="end_time"]').value = dateStr + 'T' + defaultEnd;
+                }
+
+                // Efecto visual: Scroll suave hacia el formulario para que el usuario vea que cambió
+                document.querySelector('form').scrollIntoView({ behavior: 'smooth' });
+            }
+            // ----------------------------------------------------
+        });
+        
+        calendar.render();
+    });
+
+    // Código del Mapa (se mantiene igual)
+    var map = L.map('map').setView([{{ venue.latitude }}, {{ venue.longitude }}], 15);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+    L.marker([{{ venue.latitude }}, {{ venue.longitude }}]).addTo(map)
+        .bindPopup('<b>{{ venue.name }}</b><br>Aquí estamos.');
+</script>
+{% endblock %}

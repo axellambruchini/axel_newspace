@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4 text-center">Nuestros Espacios Disponibles</h1>
+
+    <div class="row mb-4 justify-content-center">
+        <div class="col-md-6">
+            <form class="d-flex" method="GET" action="{% url 'venue_list' %}">
+                <input class="form-control me-2" type="search" name="q" 
+                       placeholder="Buscar por nombre, tipo o servicio..." 
+                       value="{{ search_query|default:'' }}" aria-label="Search">
+                <button class="btn btn-outline-primary" type="submit">Buscar</button>
+                {% if search_query %}
+                    <a href="{% url 'venue_list' %}" class="btn btn-outline-secondary ms-2">Limpiar</a>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        {% for venue in venues %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm hover-effect">
+                <div style="height: 200px; overflow: hidden;">
+                    {% if venue.images.first %}
+                        <img src="{{ venue.images.first.image.url }}" class="card-img-top" alt="{{ venue.name }}" style="object-fit: cover; height: 100%; width: 100%;">
+                    {% else %}
+                        <div class="d-flex align-items-center justify-content-center bg-secondary text-white h-100">
+                            <span>Sin Imagen</span>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="card-body">
+                    <h5 class="card-title">{{ venue.name }}</h5>
+                    <p class="card-text text-muted text-truncate">{{ venue.description }}</p>
+                    
+                    <div class="d-flex justify-content-between mb-2">
+                        <span><i class="bi bi-people"></i> Capacidad: <strong>{{ venue.capacity }}</strong></span>
+                        <span><i class="bi bi-aspect-ratio"></i> {{ venue.size_sqm }} m²</span>
+                    </div>
+                    
+                    <div class="mb-2">
+                        {% for amenity in venue.amenities.all|slice:":3" %}
+                            <span class="badge bg-light text-dark border">{{ amenity.name }}</span>
+                        {% endfor %}
+                        {% if venue.amenities.count > 3 %}
+                            <small class="text-muted">+{{ venue.amenities.count|add:"-3" }} más</small>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="card-footer bg-white border-top-0 d-flex justify-content-between align-items-center">
+                    <h5 class="text-primary mb-0">${{ venue.price_per_hour }}/hr</h5>
+                    <a href="{% url 'venue_detail' venue.id %}" class="btn btn-primary">Ver Detalles</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <h3>No hay espacios disponibles en este momento.</h3>
+            <p>Vuelve a intentar más tarde.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
