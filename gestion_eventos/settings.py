@@ -145,5 +145,16 @@ API_KEY = 'TU_API_KEY_DE_OPENWEATHERMAP'
 
 # Configuración de Email para Desarrollo
 # Los correos no se envían de verdad, aparecen en la terminal (consola)
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-DEFAULT_FROM_EMAIL = 'no-reply@eventosmanager.com'
+# Configuración para envío de correos reales con Gmail
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+# Tu correo real de Gmail
+EMAIL_HOST_USER = 'gium11392@gmail.com' 
+
+# La contraseña de 16 letras que acabas de generar (NO tu clave normal)
+EMAIL_HOST_PASSWORD = 'cojw jttm nmfn nxoa'
+
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
