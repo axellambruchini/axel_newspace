@@ -5,6 +5,9 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>🛠 Panel de Control (Staff)</h1>
         <div>
+            <a href="{% url 'staff_venue_list' %}" class="btn btn-dark ms-3">
+    <i class="bi bi-building"></i> Administrar Espacios
+</a>
             <a href="?status=PENDING" class="btn btn-warning">Ver Pendientes</a>
             <a href="?status=CONFIRMED" class="btn btn-success">Ver Confirmadas</a>
             <a href="?" class="btn btn-secondary">Ver Todas</a>

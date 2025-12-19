@@ -4,9 +4,6 @@
 <div class="container mt-4">
     <h2>Mi Panel de Gestión</h2>
     <p>Bienvenido, {{ user.first_name|default:user.username }}</p>
-    <a href="{% url 'edit_profile' %}" class="btn btn-outline-primary">
-        <i class="bi bi-pencil"></i> Editar Perfil
-    </a>
 
     <div class="card">
         <div class="card-header bg-primary text-white">

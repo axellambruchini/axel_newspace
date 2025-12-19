@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3>🛠 Gestión de Instalaciones</h3>
+                <div>
+                    <a href="{% url 'staff_venue_list' %}" class="btn btn-outline-secondary">Volver a Espacios</a>
+                    <a href="{% url 'create_amenity' %}" class="btn btn-success">+ Nueva</a>
+                </div>
+            </div>
+
+            <div class="card shadow">
+                <div class="card-body p-0">
+                    <table class="table table-striped mb-0">
+                        <thead class="bg-dark text-white">
+                            <tr>
+                                <th class="ps-4">Nombre de la Instalación</th>
+                                <th class="text-end pe-4">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for amenity in amenities %}
+                            <tr>
+                                <td class="ps-4">{{ amenity.name }}</td>
+                                <td class="text-end pe-4">
+                                    <a href="{% url 'edit_amenity' amenity.id %}" class="btn btn-sm btn-primary"><i class="bi bi-pencil"></i></a>
+                                    <a href="{% url 'delete_amenity' amenity.id %}" class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="2" class="text-center p-3">No hay instalaciones registradas.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

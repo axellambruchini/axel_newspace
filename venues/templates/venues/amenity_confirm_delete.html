@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-5">
+        <div class="card border-danger shadow">
+            <div class="card-header bg-danger text-white">Borrar Instalación</div>
+            <div class="card-body text-center">
+                <p>¿Seguro que deseas eliminar <strong>"{{ amenity.name }}"</strong>?</p>
+                <p class="small text-muted">Se quitará de todos los espacios que la tengan asignada.</p>
+                <form method="POST">
+                    {% csrf_token %}
+                    <a href="{% url 'staff_amenity_list' %}" class="btn btn-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-danger">Sí, Eliminar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

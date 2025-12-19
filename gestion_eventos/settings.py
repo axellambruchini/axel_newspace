@@ -26,7 +26,7 @@ SECRET_KEY = "django-insecure-o5)+vnrutq@c%8zljk0l1q5b&*h=9vx6&kgzn#vyoi5us%jn=w
 DEBUG = True
 
 ALLOWED_HOSTS = [
-     "proyectointegracion-1-domi.onrender.com",
+     #"proyectointegracion-1-domi.onrender.com",
 ]
 
 
