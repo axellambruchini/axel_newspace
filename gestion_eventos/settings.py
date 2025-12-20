@@ -160,3 +160,9 @@ EMAIL_HOST_USER = 'gium11392@gmail.com'
 EMAIL_HOST_PASSWORD = 'cojw jttm nmfn nxoa'
 
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://localhost:8000',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+]
